@@ -11,9 +11,9 @@ function Alert({ text, color }: { text: string; color: string }) {
 function StatBlock({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div>
-      <div className="text-[#555] text-xs uppercase tracking-wider mb-1">{label}</div>
+      <div className="text-[var(--muted)] text-xs uppercase tracking-wider mb-1">{label}</div>
       <div className="text-2xl font-bold">{value}</div>
-      {sub && <div className="text-[#888] text-xs mt-0.5">{sub}</div>}
+      {sub && <div className="text-[var(--muted)] text-xs mt-0.5">{sub}</div>}
     </div>
   );
 }
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Command Centre</h1>
-        <p className="text-[#555] text-sm mt-1">{log.date || "iso-life"}</p>
+        <p className="text-[var(--muted)] text-sm mt-1">{log.date || "iso-life"}</p>
       </div>
 
       {/* Alerts */}
@@ -74,11 +74,11 @@ export default async function DashboardPage() {
           <CardTitle>Last session</CardTitle>
           <ul className="space-y-1">
             {log.workedOn.map((item, i) => (
-              <li key={i} className="text-sm text-[#aaa] before:content-['→_'] before:text-[#555]">{item}</li>
+              <li key={i} className="text-sm text-[var(--muted)] before:content-['→_'] before:text-[var(--muted)]">{item}</li>
             ))}
           </ul>
           {log.startHere && (
-            <p className="text-sm text-[#7dd870] mt-3 pt-3 border-t border-[#2a2a2a]">
+            <p className="text-sm text-[var(--accent)] mt-3 pt-3 border-t border-[var(--border)]">
               ▸ {log.startHere}
             </p>
           )}
@@ -91,8 +91,8 @@ export default async function DashboardPage() {
           <CardTitle>Still open</CardTitle>
           <ul className="space-y-1.5">
             {log.stillOpen.map((item, i) => (
-              <li key={i} className="text-sm text-[#aaa] flex gap-2">
-                <span className="text-[#555] mt-0.5">□</span>
+              <li key={i} className="text-sm text-[var(--muted)] flex gap-2">
+                <span className="text-[var(--muted)] mt-0.5">□</span>
                 <span>{item}</span>
               </li>
             ))}

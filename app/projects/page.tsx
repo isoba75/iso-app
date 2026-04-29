@@ -9,8 +9,8 @@ interface ProjectCardProps {
 
 function ProjectCard({ project, accent }: ProjectCardProps) {
   const statusColor = project.status.toLowerCase().includes("active")
-    ? "text-[#7dd870]"
-    : "text-[#888]";
+    ? "text-[var(--accent)]"
+    : "text-[var(--muted)]";
   return (
     <Card>
       <div className="flex items-start justify-between mb-3">
@@ -19,21 +19,21 @@ function ProjectCard({ project, accent }: ProjectCardProps) {
           {project.status.split("—")[0].trim()}
         </span>
       </div>
-      <p className="text-sm text-[#888] mb-4 leading-relaxed">
+      <p className="text-sm text-[var(--muted)] mb-4 leading-relaxed">
         {project.what.split("\n")[0]}
       </p>
       {project.goal && (
         <div className="mb-4">
-          <p className="text-xs text-[#555] uppercase tracking-wider mb-1">Goal</p>
+          <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-1">Goal</p>
           <p className="text-sm text-[#e8e8e8]">{project.goal.split("\n")[0]}</p>
         </div>
       )}
       {project.openProblems.length > 0 && (
         <div>
-          <p className="text-xs text-[#555] uppercase tracking-wider mb-2">Open problems</p>
+          <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Open problems</p>
           <ul className="space-y-1.5">
             {project.openProblems.map((p, i) => (
-              <li key={i} className="text-xs text-[#aaa] flex gap-2">
+              <li key={i} className="text-xs text-[var(--muted)] flex gap-2">
                 <span style={{ color: accent }}>→</span>
                 <span>{p}</span>
               </li>

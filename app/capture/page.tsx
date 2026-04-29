@@ -33,7 +33,7 @@ export default function CapturePage() {
     <div className="space-y-6 max-w-2xl">
       <div>
         <h1 className="text-2xl font-bold">Capture</h1>
-        <p className="text-[#555] text-sm mt-1">Brain dump → commits to iso-life</p>
+        <p className="text-[var(--muted)] text-sm mt-1">Brain dump → commits to iso-life</p>
       </div>
 
       <Card>
@@ -48,7 +48,7 @@ export default function CapturePage() {
               className={`px-3 py-1 rounded-full text-xs font-medium transition ${
                 tag === t
                   ? "bg-[#7dd870] text-black"
-                  : "bg-[#1e1e1e] text-[#888] hover:text-[#e8e8e8]"
+                  : "bg-[var(--surface2)] text-[var(--muted)] hover:text-[#e8e8e8]"
               }`}
             >
               {t}
@@ -61,11 +61,11 @@ export default function CapturePage() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="What's on your mind? Ideas, tasks, observations..."
-          className="w-full bg-[#1e1e1e] border border-[#2a2a2a] rounded-lg p-3 text-sm text-[#e8e8e8] placeholder:text-[#555] resize-none focus:outline-none focus:border-[#7dd870] transition"
+          className="w-full bg-[var(--surface2)] border border-[var(--border)] rounded-lg p-3 text-sm text-[#e8e8e8] placeholder:text-[var(--muted)] resize-none focus:outline-none focus:border-[#7dd870] transition"
           rows={6}
           onKeyDown={(e) => e.key === "Enter" && e.metaKey && save()}
         />
-        <p className="text-[#555] text-xs mt-1">⌘ + Enter to save</p>
+        <p className="text-[var(--muted)] text-xs mt-1">⌘ + Enter to save</p>
 
         <button
           onClick={save}
@@ -78,8 +78,8 @@ export default function CapturePage() {
 
       <Card>
         <CardTitle>How it works</CardTitle>
-        <p className="text-sm text-[#888]">
-          Each capture is appended to <code className="text-[#7dd870] bg-[#1e1e1e] px-1 rounded">iso-life/Inbox/YYYY-MM-DD.md</code> with a timestamp and tag. Claude reads the inbox at the start of each session and processes your notes.
+        <p className="text-sm text-[var(--muted)]">
+          Each capture is appended to <code className="text-[var(--accent)] bg-[var(--surface2)] px-1 rounded">iso-life/Inbox/YYYY-MM-DD.md</code> with a timestamp and tag. Claude reads the inbox at the start of each session and processes your notes.
         </p>
       </Card>
     </div>

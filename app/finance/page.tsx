@@ -9,11 +9,11 @@ function LoanRow({ name, balance, monthly, note, highlight }: LoanRowProps) {
     <div className={`flex items-center justify-between py-3 border-b border-[#1e1e1e] last:border-0 ${highlight ? "text-yellow-400" : ""}`}>
       <div>
         <div className="text-sm font-medium">{name}</div>
-        {note && <div className="text-xs text-[#888] mt-0.5">{note}</div>}
+        {note && <div className="text-xs text-[var(--muted)] mt-0.5">{note}</div>}
       </div>
       <div className="text-right">
         <div className="text-sm font-bold">{balance}</div>
-        <div className="text-xs text-[#888]">{monthly}/mo</div>
+        <div className="text-xs text-[var(--muted)]">{monthly}/mo</div>
       </div>
     </div>
   );
@@ -51,14 +51,14 @@ export default async function FinancePage() {
       <div className="grid md:grid-cols-2 gap-4">
         <Card>
           <CardTitle>Net Worth</CardTitle>
-          <div className="text-4xl font-bold text-[#7dd870]">{f.netWorth}</div>
-          <div className="text-xs text-[#555] mt-1">assets − liabilities</div>
+          <div className="text-4xl font-bold text-[var(--accent)]">{f.netWorth}</div>
+          <div className="text-xs text-[var(--muted)] mt-1">assets − liabilities</div>
         </Card>
         <Card>
           <CardTitle>History</CardTitle>
           {history.length > 0
             ? <NetWorthChart data={history} />
-            : <p className="text-sm text-[#555]">No snapshots yet</p>}
+            : <p className="text-sm text-[var(--muted)]">No snapshots yet</p>}
         </Card>
       </div>
 
@@ -75,19 +75,19 @@ export default async function FinancePage() {
         <CardTitle>Investment Plan</CardTitle>
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-[#888]">VUAA start</span>
-            <span className="text-[#7dd870] font-semibold">{f.vuaaStart || "Jun 2026"}</span>
+            <span className="text-[var(--muted)]">VUAA start</span>
+            <span className="text-[var(--accent)] font-semibold">{f.vuaaStart || "Jun 2026"}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[#888]">Monthly contribution (Phase 1)</span>
+            <span className="text-[var(--muted)]">Monthly contribution (Phase 1)</span>
             <span>~€1,332/mo</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[#888]">Monthly contribution (from Jun 2027)</span>
+            <span className="text-[var(--muted)]">Monthly contribution (from Jun 2027)</span>
             <span>€2,500/mo</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[#888]">Monthly contribution (from Nov 2031)</span>
+            <span className="text-[var(--muted)]">Monthly contribution (from Nov 2031)</span>
             <span>€3,500/mo</span>
           </div>
         </div>
@@ -99,28 +99,28 @@ export default async function FinancePage() {
           <CardTitle>Monthly Cash Flow</CardTitle>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <p className="text-xs text-[#555] mb-2">IN</p>
+              <p className="text-xs text-[var(--muted)] mb-2">IN</p>
               {income.map((r, i) => (
                 <div key={i} className="flex justify-between text-sm py-1.5 border-b border-[#1e1e1e] last:border-0">
-                  <span className="text-[#aaa]">{r.label}</span>
-                  <span className="text-[#7dd870]">{r.amount}</span>
+                  <span className="text-[var(--muted)]">{r.label}</span>
+                  <span className="text-[var(--accent)]">{r.amount}</span>
                 </div>
               ))}
             </div>
             <div>
-              <p className="text-xs text-[#555] mb-2">OUT</p>
+              <p className="text-xs text-[var(--muted)] mb-2">OUT</p>
               {expense.map((r, i) => (
                 <div key={i} className="flex justify-between text-sm py-1.5 border-b border-[#1e1e1e] last:border-0">
-                  <span className="text-[#aaa]">{r.label}</span>
+                  <span className="text-[var(--muted)]">{r.label}</span>
                   <span className="text-[#e87d7d]">{r.amount}</span>
                 </div>
               ))}
             </div>
           </div>
           {surplus && (
-            <div className="flex justify-between text-sm font-bold pt-3 mt-3 border-t border-[#2a2a2a]">
+            <div className="flex justify-between text-sm font-bold pt-3 mt-3 border-t border-[var(--border)]">
               <span>Monthly surplus</span>
-              <span className="text-[#7dd870]">{surplus.amount}</span>
+              <span className="text-[var(--accent)]">{surplus.amount}</span>
             </div>
           )}
         </Card>
