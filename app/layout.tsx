@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { auth } from "@/auth";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "iso-life",
@@ -12,7 +16,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
         {session && <Nav />}
         {/* pb-24 on mobile to clear fixed bottom nav */}
