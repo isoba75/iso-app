@@ -4,15 +4,14 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 const links = [
-  { href: "/dashboard", label: "Command", icon: "⌂" },
-  { href: "/finance",   label: "Finance",  icon: "◈" },
-  { href: "/capture",   label: "Capture",  icon: "✦" },
-  { href: "/projects",  label: "Projects", icon: "▤" },
+  { href: "/today",    label: "Today",    icon: "⊙" },
+  { href: "/finance",  label: "Finance",  icon: "◈" },
+  { href: "/capture",  label: "Capture",  icon: "✦" },
+  { href: "/projects", label: "Projects", icon: "▤" },
 ];
 
 export function Nav() {
   const path = usePathname();
-
   return (
     <>
       {/* ── Desktop top nav ── */}
@@ -35,6 +34,16 @@ export function Nav() {
               {label}
             </Link>
           ))}
+          <Link
+            href="/dashboard"
+            className="px-3 py-1.5 rounded-md text-sm transition"
+            style={{
+              background: path.startsWith("/dashboard") ? "var(--surface2)" : "transparent",
+              color: path.startsWith("/dashboard") ? "var(--text)" : "var(--muted)",
+            }}
+          >
+            Command
+          </Link>
           <div className="ml-auto">
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
@@ -47,7 +56,7 @@ export function Nav() {
         </div>
       </nav>
 
-      {/* ── Mobile top bar (logo + sign out only) ── */}
+      {/* ── Mobile top bar ── */}
       <nav
         className="flex md:hidden sticky top-0 z-50 px-4 h-11 items-center justify-between"
         style={{ background: "var(--bg)", borderBottom: "1px solid var(--border)" }}
