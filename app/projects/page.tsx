@@ -1,13 +1,6 @@
 import { readFile } from "@/lib/github";
 import { parseProjectOverview } from "@/lib/parsers";
-import { SiteHeader } from "@/components/site-header";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 function ProjectCard({ project }: { project: ReturnType<typeof parseProjectOverview> }) {
@@ -60,23 +53,17 @@ export default async function ProjectsPage() {
   ]);
 
   const projects = [
-    parseProjectOverview(digibuntuRaw,   "DigiBuntu"),
-    parseProjectOverview(petcalcRaw,     "PetCalculate"),
-    parseProjectOverview(isoappRaw,      "IsoApp"),
+    parseProjectOverview(digibuntuRaw, "DigiBuntu"),
+    parseProjectOverview(petcalcRaw,   "PetCalculate"),
+    parseProjectOverview(isoappRaw,    "IsoApp"),
   ];
 
   return (
-    <div className="flex flex-col">
-      <div className="hidden md:block">
-        <SiteHeader title="Projects" />
-      </div>
-
-      <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
-        <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-3">
-          {projects.map((p) => (
-            <ProjectCard key={p.name} project={p} />
-          ))}
-        </div>
+    <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-3">
+        {projects.map((p) => (
+          <ProjectCard key={p.name} project={p} />
+        ))}
       </div>
     </div>
   );

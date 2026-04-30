@@ -1,6 +1,5 @@
 import { readFile } from "@/lib/github";
 import { parseFinanceContext, parseNetWorth } from "@/lib/parsers";
-import { SiteHeader } from "@/components/site-header";
 import {
   Card,
   CardAction,
@@ -11,18 +10,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { NetWorthChart } from "@/components/finance/net-worth-chart";
-import { TrendingDownIcon, TrendingUpIcon, MinusIcon } from "lucide-react";
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 
-function Row({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: boolean }) {
+function Row({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
       <div>
         <p className="text-sm">{label}</p>
         {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
       </div>
-      <div className="text-right">
-        <p className={`text-sm font-semibold tabular-nums ${accent ? "text-foreground" : ""}`}>{value}</p>
-      </div>
+      <p className="text-sm font-semibold tabular-nums">{value}</p>
     </div>
   );
 }
@@ -51,144 +48,111 @@ export default async function FinancePage() {
   const surplus = cashFlowLines.find((r) => r.label.toLowerCase().includes("surplus"));
 
   return (
-    <div className="flex flex-col">
-      <div className="hidden md:block">
-        <SiteHeader title="Finance" />
+    <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs @xl/main:grid-cols-3 dark:*:data-[slot=card]:bg-card">
+        <Card className="@container/card">
+          <CardHeader>
+            <CardDescription>Net Worth</CardDescription>
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              {f.netWorth || "—"}
+            </CardTitle>
+            <CardAction>
+              <Badge variant="outline"><TrendingUpIcon />Assets − liabilities</Badge>
+            </CardAction>
+          </CardHeader>
+          <CardFooter className="text-sm text-muted-foreground">Updated from CONTEXT.md</CardFooter>
+        </Card>
+
+        <Card className="@container/card">
+          <CardHeader>
+            <CardDescription>Revolut Loan</CardDescription>
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              {f.revolut.balance || "—"}
+            </CardTitle>
+            <CardAction>
+              <Badge variant="outline"><TrendingDownIcon />Paying down</Badge>
+            </CardAction>
+          </CardHeader>
+          <CardFooter className="text-sm text-muted-foreground">{f.revolut.monthly}/mo · Target May 2026</CardFooter>
+        </Card>
+
+        <Card className="@container/card">
+          <CardHeader>
+            <CardDescription>VUAA Start</CardDescription>
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              {f.vuaaStart || "Jun 2026"}
+            </CardTitle>
+            <CardAction>
+              <Badge variant="outline"><TrendingUpIcon />After Revolut</Badge>
+            </CardAction>
+          </CardHeader>
+          <CardFooter className="text-sm text-muted-foreground">Phase 1: ~€1,332/mo</CardFooter>
+        </Card>
       </div>
 
-      <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+      {/* Chart */}
+      {history.length > 0 && (
+        <Card>
+          <CardHeader><CardDescription>Net Worth History</CardDescription></CardHeader>
+          <div className="px-6 pb-4"><NetWorthChart data={history} /></div>
+        </Card>
+      )}
 
-        {/* Top stat cards */}
-        <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs @xl/main:grid-cols-3 dark:*:data-[slot=card]:bg-card">
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>Net Worth</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {f.netWorth || "—"}
-              </CardTitle>
-              <CardAction>
-                <Badge variant="outline">
-                  <TrendingUpIcon />
-                  Assets − liabilities
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className="text-sm text-muted-foreground">
-              Updated from CONTEXT.md
-            </CardFooter>
-          </Card>
-
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>Revolut Loan</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {f.revolut.balance || "—"}
-              </CardTitle>
-              <CardAction>
-                <Badge variant="outline">
-                  <TrendingDownIcon />
-                  Paying down
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className="text-sm text-muted-foreground">
-              {f.revolut.monthly}/mo · Target May 2026
-            </CardFooter>
-          </Card>
-
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>VUAA Start</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {f.vuaaStart || "Jun 2026"}
-              </CardTitle>
-              <CardAction>
-                <Badge variant="outline">
-                  <TrendingUpIcon />
-                  After Revolut
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className="text-sm text-muted-foreground">
-              Phase 1: ~€1,332/mo
-            </CardFooter>
-          </Card>
+      {/* Liabilities */}
+      <Card>
+        <CardHeader><CardDescription>Liabilities</CardDescription></CardHeader>
+        <div className="px-6 pb-4">
+          <Row label="Revolut loan" value={f.revolut.balance} sub={f.revolut.status} />
+          <Row label="SG loan (lost property)" value={f.sg.balance} sub={`${f.sg.monthly}/mo · Ends Oct 2031`} />
+          <Row label="SEPU mortgage (Clamart)" value={f.sepu.balance} sub={`${f.sepu.monthly}/mo · Rate 2.8%, ends Oct 2038`} />
         </div>
+      </Card>
 
-        {/* Net worth chart */}
-        {history.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardDescription>Net Worth History</CardDescription>
-            </CardHeader>
-            <div className="px-6 pb-4">
-              <NetWorthChart data={history} />
-            </div>
-          </Card>
-        )}
+      {/* Investment plan */}
+      <Card>
+        <CardHeader><CardDescription>Investment Plan — VUAA</CardDescription></CardHeader>
+        <div className="px-6 pb-4">
+          <Row label="Phase 1 (after Revolut cleared)" value="~€1,332/mo" />
+          <Row label="Phase 2 (from Jun 2027)" value="€2,500/mo" />
+          <Row label="Phase 3 (from Nov 2031)" value="€3,500/mo" />
+        </div>
+      </Card>
 
-        {/* Liabilities */}
+      {/* Cash flow */}
+      {cashFlowLines.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardDescription>Liabilities</CardDescription>
-          </CardHeader>
+          <CardHeader><CardDescription>Monthly Cash Flow</CardDescription></CardHeader>
           <div className="px-6 pb-4">
-            <Row label="Revolut loan" value={f.revolut.balance} sub={f.revolut.status} />
-            <Row label="SG loan (lost property)" value={f.sg.balance} sub={`${f.sg.monthly}/mo · Ends Oct 2031`} />
-            <Row label="SEPU mortgage (Clamart)" value={f.sepu.balance} sub={`${f.sepu.monthly}/mo · Rate 2.8%, ends Oct 2038`} />
-          </div>
-        </Card>
-
-        {/* Investment plan */}
-        <Card>
-          <CardHeader>
-            <CardDescription>Investment Plan — VUAA</CardDescription>
-          </CardHeader>
-          <div className="px-6 pb-4">
-            <Row label="Phase 1 (after Revolut cleared)" value="~€1,332/mo" />
-            <Row label="Phase 2 (from Jun 2027)" value="€2,500/mo" />
-            <Row label="Phase 3 (from Nov 2031)" value="€3,500/mo" />
-          </div>
-        </Card>
-
-        {/* Cash flow */}
-        {cashFlowLines.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardDescription>Monthly Cash Flow</CardDescription>
-            </CardHeader>
-            <div className="px-6 pb-4">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">In</p>
-                  {income.map((r, i) => (
-                    <div key={i} className="flex justify-between text-sm py-2 border-b border-border last:border-0">
-                      <span className="text-muted-foreground">{r.label}</span>
-                      <span className="font-medium tabular-nums">{r.amount}</span>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Out</p>
-                  {expense.map((r, i) => (
-                    <div key={i} className="flex justify-between text-sm py-2 border-b border-border last:border-0">
-                      <span className="text-muted-foreground">{r.label}</span>
-                      <span className="font-medium tabular-nums text-destructive">{r.amount}</span>
-                    </div>
-                  ))}
-                </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">In</p>
+                {income.map((r, i) => (
+                  <div key={i} className="flex justify-between text-sm py-2 border-b border-border last:border-0">
+                    <span className="text-muted-foreground">{r.label}</span>
+                    <span className="font-medium tabular-nums">{r.amount}</span>
+                  </div>
+                ))}
               </div>
-              {surplus && (
-                <div className="flex justify-between text-sm font-semibold pt-4 mt-2 border-t border-border">
-                  <span>Monthly surplus</span>
-                  <span className="tabular-nums">{surplus.amount}</span>
-                </div>
-              )}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Out</p>
+                {expense.map((r, i) => (
+                  <div key={i} className="flex justify-between text-sm py-2 border-b border-border last:border-0">
+                    <span className="text-muted-foreground">{r.label}</span>
+                    <span className="font-medium tabular-nums text-destructive">{r.amount}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </Card>
-        )}
-
-      </div>
+            {surplus && (
+              <div className="flex justify-between text-sm font-semibold pt-4 mt-2 border-t border-border">
+                <span>Monthly surplus</span>
+                <span className="tabular-nums">{surplus.amount}</span>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
