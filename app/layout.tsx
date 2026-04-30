@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { auth } from "@/auth";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -9,7 +9,29 @@ import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: "iso-life",
-  description: "Personal life OS",
+  description: "Personal life OS — Ismaila Ba",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "iso-life",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180" },
+    ],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#18181b",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -50,10 +72,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </SidebarInset>
           </SidebarProvider>
 
-          {/* Mobile: top bar + bottom tabs */}
+          {/* Mobile: top bar + floating bottom tabs */}
           <div className="flex md:hidden flex-col min-h-screen">
             <MobileNav />
-            <main className="flex-1 overflow-auto px-4 py-4 pb-28">
+            {/* Extra bottom padding: floating bar (≈72px) + safe area + gap */}
+            <main className="flex-1 overflow-auto px-4 py-4 pb-36">
               {children}
             </main>
           </div>
