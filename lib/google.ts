@@ -81,6 +81,29 @@ export async function getTasks(listId: string): Promise<GTask[]> {
   return (data.items || []).filter((t: GTask) => t.status === "needsAction");
 }
 
+export async function createTask(
+  listId: string,
+  title: string,
+  notes?: string,
+  due?: string
+): Promise<GTask> {
+  const token = await getAccessToken();
+  const body: Record<string, string> = { title };
+  if (notes) body.notes = notes;
+  if (due) body.due = new Date(due).toISOString();
+
+  const res = await fetch(
+    `https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }
+  );
+  if (!res.ok) throw new Error(`createTask failed: ${res.status}`);
+  return res.json();
+}
+
 // ── Gmail ──────────────────────────────────────────────────────────────────
 export interface Email {
   id: string;
