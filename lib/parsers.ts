@@ -100,6 +100,43 @@ export function parseProjectOverview(md: string, name: string): ProjectOverview 
   };
 }
 
+// Parse memory/hot.md — the hot cache (primary session state)
+export interface HotCache {
+  updatedDate: string;
+  focus: string;
+  openItems: string[];
+  lastSessionDate: string;
+  lastSessionBullets: string[];
+  financialPulse: string;
+  nextFinancialAction: string;
+  inboxFlags: string[];
+}
+
+export function parseHotCache(md: string): HotCache {
+  const section = (heading: string) => {
+    const m = md.match(new RegExp(`## ${heading}[^\n]*\n([^#]+)`));
+    return m ? m[1].trim() : "";
+  };
+  const bullets = (text: string) =>
+    text.split("\n").filter((l) => l.match(/^[-*]|\*\*/)).map((l) => l.replace(/^[-*]\s*\*{0,2}/, "").trim()).filter(Boolean);
+
+  const updatedMatch = md.match(/Updated:\s*(\d{4}-\d{2}-\d{2})/);
+  const lastSessionMatch = md.match(/## Last Session \((\d{4}-\d{2}-\d{2})\)/);
+  const pulse = section("Financial Pulse");
+  const nextMatch = pulse.match(/Next[^:]*:\s*(.+)/);
+
+  return {
+    updatedDate: updatedMatch ? updatedMatch[1] : "",
+    focus: section("Focus This Session"),
+    openItems: bullets(section("Open / Pending")),
+    lastSessionDate: lastSessionMatch ? lastSessionMatch[1] : "",
+    lastSessionBullets: bullets(section(`Last Session \\(${lastSessionMatch?.[1] ?? ".*"}\\)`)),
+    financialPulse: pulse.split("\n")[0] ?? "",
+    nextFinancialAction: nextMatch ? nextMatch[1].trim() : "",
+    inboxFlags: bullets(section("Inbox Flags")),
+  };
+}
+
 // Parse the last daily log for open items + recommendation
 export interface DailyLog {
   workedOn: string[];
