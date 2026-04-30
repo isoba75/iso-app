@@ -1,96 +1,204 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+"use client"
+
+import * as React from "react"
+
+import { NavDocuments } from "@/components/nav-documents"
+import { NavMain } from "@/components/nav-main"
+import { NavSecondary } from "@/components/nav-secondary"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"
+import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon } from "lucide-react"
 
-const mainLinks = [
-  { href: "/today",    label: "Today" },
-  { href: "/finance",  label: "Finance" },
-  { href: "/projects", label: "Projects" },
-  { href: "/capture",  label: "Capture" },
-  { href: "/missions", label: "Missions" },
-  { href: "/habits",   label: "Habits" },
-];
-
-const secondaryLinks = [
-  { href: "/routines", label: "Routines" },
-];
-
-export function AppSidebar() {
-  const path = usePathname();
-
+const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "#",
+      icon: (
+        <LayoutDashboardIcon
+        />
+      ),
+    },
+    {
+      title: "Lifecycle",
+      url: "#",
+      icon: (
+        <ListIcon
+        />
+      ),
+    },
+    {
+      title: "Analytics",
+      url: "#",
+      icon: (
+        <ChartBarIcon
+        />
+      ),
+    },
+    {
+      title: "Projects",
+      url: "#",
+      icon: (
+        <FolderIcon
+        />
+      ),
+    },
+    {
+      title: "Team",
+      url: "#",
+      icon: (
+        <UsersIcon
+        />
+      ),
+    },
+  ],
+  navClouds: [
+    {
+      title: "Capture",
+      icon: (
+        <CameraIcon
+        />
+      ),
+      isActive: true,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Proposal",
+      icon: (
+        <FileTextIcon
+        />
+      ),
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Prompts",
+      icon: (
+        <FileTextIcon
+        />
+      ),
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+  ],
+  navSecondary: [
+    {
+      title: "Settings",
+      url: "#",
+      icon: (
+        <Settings2Icon
+        />
+      ),
+    },
+    {
+      title: "Get Help",
+      url: "#",
+      icon: (
+        <CircleHelpIcon
+        />
+      ),
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: (
+        <SearchIcon
+        />
+      ),
+    },
+  ],
+  documents: [
+    {
+      name: "Data Library",
+      url: "#",
+      icon: (
+        <DatabaseIcon
+        />
+      ),
+    },
+    {
+      name: "Reports",
+      url: "#",
+      icon: (
+        <FileChartColumnIcon
+        />
+      ),
+    },
+    {
+      name: "Word Assistant",
+      url: "#",
+      icon: (
+        <FileIcon
+        />
+      ),
+    },
+  ],
+}
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 h-12 flex items-center border-b border-border">
-        <span className="text-sm font-semibold text-foreground tracking-tight">
-          iso<span style={{ color: "var(--accent-green)" }}>·</span>life
-        </span>
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              render={<a href="#" />}
+            >
+              <CommandIcon className="size-5!" />
+              <span className="text-base font-semibold">Acme Inc.</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
-
-      <SidebarContent className="pt-2">
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainLinks.map(({ href, label }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    isActive={path.startsWith(href)}
-                    tooltip={label}
-                    render={
-                      <Link href={href} className="text-sm">
-                        {label}
-                      </Link>
-                    }
-                  />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryLinks.map(({ href, label }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    isActive={path.startsWith(href)}
-                    tooltip={label}
-                    render={
-                      <Link href={href} className="text-sm">
-                        {label}
-                      </Link>
-                    }
-                  />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+        <NavDocuments items={data.documents} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-
-      <SidebarFooter className="px-3 pb-4 border-t border-border pt-2">
-        <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="text-xs text-muted-foreground hover:text-foreground transition w-full text-left py-1"
-        >
-          Sign out
-        </button>
+      <SidebarFooter>
+        <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }
