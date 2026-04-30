@@ -39,19 +39,19 @@ export default async function TodayPage() {
 
   return (
     <>
-      {/* Desktop: 3-column grid */}
-      <div className="hidden md:grid grid-cols-[280px_1fr_240px] gap-6 h-full">
-        <div className="overflow-y-auto">
+      {/* Desktop: 3-column grid — columns scroll independently */}
+      <div className="hidden md:grid grid-cols-[272px_1fr_220px] gap-6 min-h-0">
+        <div className="flex flex-col gap-4">
           <Suspense fallback={<ColumnSkeleton />}>
             {configured ? <DayColumn /> : <SetupPrompt />}
           </Suspense>
         </div>
-        <div className="overflow-y-auto">
+        <div className="flex flex-col gap-4">
           <Suspense fallback={<ColumnSkeleton />}>
             <FeedColumn />
           </Suspense>
         </div>
-        <div className="overflow-y-auto">
+        <div className="flex flex-col gap-4">
           <ActionsColumn />
         </div>
       </div>
