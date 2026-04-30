@@ -1,106 +1,80 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import { NavMain } from "@/components/nav-main"
+import { NavSecondary } from "@/components/nav-secondary"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"
+import {
+  CalendarIcon,
+  WalletIcon,
+  FolderIcon,
+  InboxIcon,
+  TargetIcon,
+  ActivityIcon,
+  TimerIcon,
+  Settings2Icon,
+  CircleHelpIcon,
+} from "lucide-react"
 
-const mainLinks = [
-  { href: "/today",    label: "Today",    icon: "⌂" },
-  { href: "/finance",  label: "Finance",  icon: "◈" },
-  { href: "/projects", label: "Projects", icon: "▤" },
-  { href: "/capture",  label: "Capture",  icon: "✦" },
-  { href: "/missions", label: "Missions", icon: "⟶" },
-  { href: "/habits",   label: "Habits",   icon: "◎" },
-];
+const navMain = [
+  { title: "Today",    url: "/today",    icon: <CalendarIcon /> },
+  { title: "Finance",  url: "/finance",  icon: <WalletIcon /> },
+  { title: "Projects", url: "/projects", icon: <FolderIcon /> },
+  { title: "Capture",  url: "/capture",  icon: <InboxIcon /> },
+  { title: "Missions", url: "/missions", icon: <TargetIcon /> },
+  { title: "Habits",   url: "/habits",   icon: <ActivityIcon /> },
+  { title: "Routines", url: "/routines", icon: <TimerIcon /> },
+]
 
-const secondaryLinks = [
-  { href: "/routines", label: "Routines", icon: "◷" },
-];
+const navSecondary = [
+  { title: "Settings", url: "#", icon: <Settings2Icon /> },
+  { title: "Help",     url: "#", icon: <CircleHelpIcon /> },
+]
 
-export function AppSidebar() {
-  const path = usePathname();
-
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  user: { name: string; email: string; avatar: string }
+}) {
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 py-3">
-        <span
-          className="text-sm font-bold tracking-tight"
-          style={{ color: "var(--accent-green, #7dd870)" }}
-        >
-          iso-life
-        </span>
-      </SidebarHeader>
-
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainLinks.map(({ href, label, icon }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    isActive={path.startsWith(href)}
-                    tooltip={label}
-                    render={
-                      <Link href={href}>
-                        <span className="text-base">{icon}</span>
-                        <span>{label}</span>
-                      </Link>
-                    }
-                  />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryLinks.map(({ href, label, icon }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    isActive={path.startsWith(href)}
-                    tooltip={label}
-                    render={
-                      <Link href={href}>
-                        <span className="text-base">{icon}</span>
-                        <span>{label}</span>
-                      </Link>
-                    }
-                  />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter className="px-2 pb-3">
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              tooltip="Sign out"
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              render={<Link href="/today" />}
             >
-              <span className="text-base">⎋</span>
-              <span>Sign out</span>
+              <span
+                className="text-base font-semibold tracking-tight"
+                style={{ color: "var(--accent-green)" }}
+              >
+                iso·life
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <NavMain items={navMain} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
+      </SidebarContent>
+
+      <SidebarFooter>
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }

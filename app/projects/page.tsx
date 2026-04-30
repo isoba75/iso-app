@@ -1,40 +1,40 @@
 import { readFile } from "@/lib/github";
 import { parseProjectOverview } from "@/lib/parsers";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-interface ProjectCardProps {
-  project: ReturnType<typeof parseProjectOverview>;
-  accent: string;
-}
+function ProjectCard({ project }: { project: ReturnType<typeof parseProjectOverview> }) {
+  const isActive = project.status.toLowerCase().includes("active");
+  const statusLabel = project.status.split("—")[0].trim();
 
-function ProjectCard({ project, accent }: ProjectCardProps) {
-  const statusColor = project.status.toLowerCase().includes("active")
-    ? "text-[var(--accent)]"
-    : "text-[var(--muted)]";
   return (
-    <Card>
-      <div className="flex items-start justify-between mb-3">
-        <h2 className="font-bold text-base">{project.name}</h2>
-        <span className={`text-xs font-semibold ${statusColor}`}>
-          {project.status.split("—")[0].trim()}
-        </span>
-      </div>
-      <p className="text-sm text-[var(--muted)] mb-4 leading-relaxed">
-        {project.what.split("\n")[0]}
-      </p>
+    <Card className="flex flex-col">
+      <CardHeader>
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle className="text-base">{project.name}</CardTitle>
+          <Badge variant={isActive ? "default" : "outline"} className="shrink-0 text-[10px]">
+            {statusLabel}
+          </Badge>
+        </div>
+        <CardDescription className="line-clamp-3 leading-relaxed">
+          {project.what.split("\n")[0]}
+        </CardDescription>
+      </CardHeader>
+
       {project.goal && (
-        <div className="mb-4">
-          <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-1">Goal</p>
-          <p className="text-sm text-[#e8e8e8]">{project.goal.split("\n")[0]}</p>
+        <div className="px-6 pb-3">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Goal</p>
+          <p className="text-sm">{project.goal.split("\n")[0]}</p>
         </div>
       )}
+
       {project.openProblems.length > 0 && (
-        <div>
-          <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Open problems</p>
-          <ul className="space-y-1.5">
-            {project.openProblems.map((p, i) => (
-              <li key={i} className="text-xs text-[var(--muted)] flex gap-2">
-                <span style={{ color: accent }}>→</span>
+        <div className="px-6 pb-4 mt-auto">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Open</p>
+          <ul className="space-y-1">
+            {project.openProblems.slice(0, 3).map((p, i) => (
+              <li key={i} className="text-xs text-muted-foreground flex gap-2">
+                <span className="shrink-0">·</span>
                 <span>{p}</span>
               </li>
             ))}
@@ -53,17 +53,16 @@ export default async function ProjectsPage() {
   ]);
 
   const projects = [
-    { data: parseProjectOverview(digibuntuRaw, "DigiBuntu"),   accent: "#e87d7d" },
-    { data: parseProjectOverview(petcalcRaw,   "PetCalculate"), accent: "#7db8e8" },
-    { data: parseProjectOverview(isoappRaw,    "IsoApp"),       accent: "#7dd870" },
+    parseProjectOverview(digibuntuRaw, "DigiBuntu"),
+    parseProjectOverview(petcalcRaw,   "PetCalculate"),
+    parseProjectOverview(isoappRaw,    "IsoApp"),
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Projects</h1>
-      <div className="grid md:grid-cols-3 gap-4">
-        {projects.map(({ data, accent }) => (
-          <ProjectCard key={data.name} project={data} accent={accent} />
+    <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-3">
+        {projects.map((p) => (
+          <ProjectCard key={p.name} project={p} />
         ))}
       </div>
     </div>

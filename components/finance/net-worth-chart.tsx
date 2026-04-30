@@ -19,7 +19,7 @@ export function NetWorthChart({ data }: { data: Snapshot[] }) {
         <Tooltip
           contentStyle={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 6, fontSize: 11 }}
           labelStyle={{ color: "#888" }}
-          formatter={(v: number) => [`€${v.toLocaleString()}`, "SEPU"]}
+          formatter={(v) => [`€${(v as number).toLocaleString()}`, "SEPU"]}
         />
         <Line type="monotone" dataKey="sepu" stroke="#7dd870" strokeWidth={2} dot={false} />
       </LineChart>

@@ -9,19 +9,11 @@ export async function FeedColumn() {
   ]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Feed
-      </p>
+    <div className="flex flex-col gap-3">
       <HeartbeatCard data={heartbeat} />
       {alerts.map((alert) => (
         <AlertCard key={alert.id} alert={alert} />
       ))}
-      {alerts.length === 0 && !heartbeat && (
-        <p className="text-xs text-muted-foreground">
-          No alerts. Routines will surface updates here.
-        </p>
-      )}
     </div>
   );
 }
