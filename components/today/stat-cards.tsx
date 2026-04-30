@@ -7,96 +7,153 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon, MinusIcon } from "lucide-react"
-import { readFile } from "@/lib/github"
+import { CheckIcon, CalendarIcon, InboxIcon, ListTodoIcon } from "lucide-react"
+import { getCalendarEvents, getTasks, getEmails, googleConfigured } from "@/lib/google"
 
-interface StatCard {
-  label: string
-  value: string
-  trend: "up" | "down" | "neutral"
-  trendLabel: string
-  detail: string
+const MY_TASKS_ID = "MDUwNTMxNTE1ODg2MjgxMDc1Nzc6MDow"
+const CLAUDE_ID   = "cmVQNFNHUTdCSXJfX3QzbQ"
+
+function isOverdue(due?: string): boolean {
+  if (!due) return false
+  return new Date(due) < new Date(new Date().toDateString())
 }
 
-async function getFinanceStats(): Promise<StatCard[]> {
-  try {
-    const raw = await readFile("Personal Finances/memory/CONTEXT.md")
+function isToday(due?: string): boolean {
+  if (!due) return false
+  const d = new Date(due).toDateString()
+  return d === new Date().toDateString()
+}
 
-    const nwMatch = raw.match(/net.?worth[:\s]+€?([\d,]+)/i)
-    const netWorth = nwMatch ? `€${nwMatch[1]}` : "—"
-
-    const revMatch = raw.match(/revolut[:\s]+€?([\d,]+)/i)
-    const revolut = revMatch ? `€${revMatch[1]}` : "—"
-
-    const salMatch = raw.match(/(?:salary|income|net salary)[:\s]+€?([\d,]+)/i)
-    const salary = salMatch ? `€${salMatch[1]}` : "—"
-
-    const vuaaMatch = raw.match(/vuaa[:\s]+([^\n]+)/i)
-    const vuaa = vuaaMatch ? vuaaMatch[1].trim().slice(0, 20) : "—"
-
-    return [
-      {
-        label: "Net Worth",
-        value: netWorth,
-        trend: "up",
-        trendLabel: "Tracking up",
-        detail: "From CONTEXT.md",
-      },
-      {
-        label: "Revolut Loan",
-        value: revolut,
-        trend: "down",
-        trendLabel: "Paying down",
-        detail: "Target: May 2026",
-      },
-      {
-        label: "Monthly Income",
-        value: salary,
-        trend: "neutral",
-        trendLabel: "Stable",
-        detail: "Net EUR",
-      },
-      {
-        label: "VUAA",
-        value: vuaa,
-        trend: "up",
-        trendLabel: "Coming soon",
-        detail: "After Revolut cleared",
-      },
-    ]
-  } catch {
-    return []
-  }
+function formatEventTime(dateTime?: string): string {
+  if (!dateTime) return "All day"
+  return new Date(dateTime).toLocaleTimeString("fr-FR", {
+    hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris",
+  })
 }
 
 export async function IsoStatCards() {
-  const stats = await getFinanceStats()
+  if (!googleConfigured()) return null
 
-  if (stats.length === 0) return null
+  const [events, myTasks, claudeTasks, emails] = await Promise.all([
+    getCalendarEvents().catch(() => []),
+    getTasks(MY_TASKS_ID).catch(() => []),
+    getTasks(CLAUDE_ID).catch(() => []),
+    getEmails(20).catch(() => []),
+  ])
+
+  // Tasks due today or overdue
+  const allTasks = [...myTasks, ...claudeTasks]
+  const overdue = allTasks.filter((t) => isOverdue(t.due))
+  const dueToday = allTasks.filter((t) => isToday(t.due))
+  const tasksDueCount = overdue.length + dueToday.length
+  const tasksBadge = overdue.length > 0 ? `${overdue.length} overdue` : "On track"
+  const tasksBadgeVariant = overdue.length > 0 ? "destructive" : "outline"
+
+  // Next calendar event
+  const nextEvent = events[0] ?? null
+  const nextEventTime = nextEvent ? formatEventTime(nextEvent.start.dateTime) : null
+  const eventsDetail = events.length === 0
+    ? "Nothing scheduled"
+    : `${events.length} event${events.length > 1 ? "s" : ""} today`
+
+  // Open items from all tasks (no due date = backlog)
+  const openCount = allTasks.length
+  const noDueCount = allTasks.filter((t) => !t.due).length
+
+  // Unread emails
+  const unreadCount = emails.length
 
   return (
     <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      {stats.map((stat) => (
-        <Card key={stat.label} className="@container/card">
-          <CardHeader>
-            <CardDescription>{stat.label}</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-              {stat.value}
-            </CardTitle>
-            <CardAction>
-              <Badge variant="outline">
-                {stat.trend === "up" && <TrendingUpIcon />}
-                {stat.trend === "down" && <TrendingDownIcon />}
-                {stat.trend === "neutral" && <MinusIcon />}
-                {stat.trendLabel}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardFooter className="flex-col items-start gap-1.5 text-sm">
-            <div className="text-muted-foreground">{stat.detail}</div>
-          </CardFooter>
-        </Card>
-      ))}
+
+      {/* Tasks due */}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Tasks due today</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            {tasksDueCount}
+          </CardTitle>
+          <CardAction>
+            <Badge variant={tasksBadgeVariant as "outline" | "destructive"}>
+              <ListTodoIcon className="size-3" />
+              {tasksBadge}
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="text-muted-foreground">
+            {overdue.length > 0
+              ? `${overdue.length} overdue · ${dueToday.length} due today`
+              : dueToday.length > 0
+              ? `${dueToday.length} due today`
+              : "Nothing due today"}
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* Next event */}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Next event</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            {nextEventTime ?? "—"}
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <CalendarIcon className="size-3" />
+              {eventsDetail}
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="text-muted-foreground truncate w-full">
+            {nextEvent ? nextEvent.summary : "Free day"}
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* Open items */}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Open tasks</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            {openCount}
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <CheckIcon className="size-3" />
+              {noDueCount > 0 ? `${noDueCount} no deadline` : "All dated"}
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="text-muted-foreground">
+            {myTasks.length} personal · {claudeTasks.length} Claude
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* Unread email */}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Unread emails</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            {unreadCount}
+          </CardTitle>
+          <CardAction>
+            <Badge variant={unreadCount > 5 ? "destructive" : "outline"}>
+              <InboxIcon className="size-3" />
+              {unreadCount === 0 ? "Inbox zero" : unreadCount > 5 ? "Needs attention" : "Manageable"}
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="text-muted-foreground">
+            {unreadCount === 0 ? "All clear" : `${unreadCount} unread in inbox`}
+          </div>
+        </CardFooter>
+      </Card>
+
     </div>
   )
 }
