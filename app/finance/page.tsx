@@ -14,12 +14,12 @@ import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 
 function Row({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
+    <div className="flex items-center justify-between py-4 border-b border-border last:border-0">
       <div>
-        <p className="text-sm">{label}</p>
-        {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+        <p className="text-base">{label}</p>
+        {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
       </div>
-      <p className="text-sm font-semibold tabular-nums">{value}</p>
+      <p className="text-base font-semibold tabular-nums">{value}</p>
     </div>
   );
 }
@@ -54,7 +54,7 @@ export default async function FinancePage() {
         <Card className="@container/card">
           <CardHeader>
             <CardDescription>Net Worth</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            <CardTitle className="text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
               {f.netWorth || "—"}
             </CardTitle>
             <CardAction>
@@ -67,7 +67,7 @@ export default async function FinancePage() {
         <Card className="@container/card">
           <CardHeader>
             <CardDescription>Revolut Loan</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            <CardTitle className="text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
               {f.revolut.balance || "—"}
             </CardTitle>
             <CardAction>
@@ -80,7 +80,7 @@ export default async function FinancePage() {
         <Card className="@container/card">
           <CardHeader>
             <CardDescription>VUAA Start</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            <CardTitle className="text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
               {f.vuaaStart || "Jun 2026"}
             </CardTitle>
             <CardAction>

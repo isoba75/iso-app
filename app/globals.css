@@ -61,3 +61,10 @@
 .dark {
   --accent-green: #7dd870;
 }
+
+/* Mobile typography baseline */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}

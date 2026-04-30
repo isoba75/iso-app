@@ -11,29 +11,29 @@ function ProjectCard({ project }: { project: ReturnType<typeof parseProjectOverv
     <Card className="flex flex-col">
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base">{project.name}</CardTitle>
-          <Badge variant={isActive ? "default" : "outline"} className="shrink-0 text-[10px]">
+          <CardTitle className="text-lg">{project.name}</CardTitle>
+          <Badge variant={isActive ? "default" : "outline"} className="shrink-0 text-xs">
             {statusLabel}
           </Badge>
         </div>
-        <CardDescription className="line-clamp-3 leading-relaxed">
+        <CardDescription className="line-clamp-3 leading-relaxed text-sm">
           {project.what.split("\n")[0]}
         </CardDescription>
       </CardHeader>
 
       {project.goal && (
         <div className="px-6 pb-3">
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Goal</p>
-          <p className="text-sm">{project.goal.split("\n")[0]}</p>
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Goal</p>
+          <p className="text-base">{project.goal.split("\n")[0]}</p>
         </div>
       )}
 
       {project.openProblems.length > 0 && (
-        <div className="px-6 pb-4 mt-auto">
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Open</p>
-          <ul className="space-y-1">
+        <div className="px-6 pb-5 mt-auto">
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Open</p>
+          <ul className="space-y-2">
             {project.openProblems.slice(0, 3).map((p, i) => (
-              <li key={i} className="text-xs text-muted-foreground flex gap-2">
+              <li key={i} className="text-sm text-muted-foreground flex gap-2">
                 <span className="shrink-0">·</span>
                 <span>{p}</span>
               </li>
@@ -60,6 +60,7 @@ export default async function ProjectsPage() {
 
   return (
     <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+      <h1 className="text-2xl font-semibold">Projects</h1>
       <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-3">
         {projects.map((p) => (
           <ProjectCard key={p.name} project={p} />

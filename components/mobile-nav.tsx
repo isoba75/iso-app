@@ -67,9 +67,9 @@ export function MobileNav() {
                   color: active ? "#7dd870" : "rgba(255,255,255,0.45)",
                 }}
               >
-                <span className="text-[18px] leading-none">{icon}</span>
+                <span className="text-xl leading-none">{icon}</span>
                 <span
-                  className="text-[9px] font-semibold tracking-wide"
+                  className="text-[11px] font-semibold tracking-wide"
                   style={{ color: active ? "#7dd870" : "rgba(255,255,255,0.4)" }}
                 >
                   {label.toUpperCase()}
@@ -84,8 +84,8 @@ export function MobileNav() {
               className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 rounded-xl transition-all"
               style={{ color: "rgba(255,255,255,0.45)", background: "transparent", border: "none" }}
             >
-              <span className="text-[18px] leading-none">···</span>
-              <span className="text-[9px] font-semibold tracking-wide" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <span className="text-xl leading-none">···</span>
+              <span className="text-[11px] font-semibold tracking-wide" style={{ color: "rgba(255,255,255,0.4)" }}>
                 MORE
               </span>
             </SheetTrigger>
