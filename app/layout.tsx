@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
+import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: "iso-life",
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           >
             <AppSidebar variant="inset" user={user} />
             <SidebarInset>
+              <SiteHeader title="iso-life" />
               {children}
             </SidebarInset>
           </SidebarProvider>

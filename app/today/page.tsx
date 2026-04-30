@@ -4,7 +4,6 @@ import { DayColumn } from "@/components/today/day-column";
 import { FeedColumn } from "@/components/today/feed-column";
 import { ActionsColumn } from "@/components/today/actions-column";
 import { IsoStatCards } from "@/components/today/stat-cards";
-import { SiteHeader } from "@/components/site-header";
 import { Card, CardContent } from "@/components/ui/card";
 
 function SetupPrompt() {
@@ -51,11 +50,6 @@ export default async function TodayPage() {
 
   return (
     <div className="flex flex-col">
-      {/* Header — desktop only */}
-      <div className="hidden md:block">
-        <SiteHeader title="Today" />
-      </div>
-
       <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         {/* Stat cards row */}
         <Suspense fallback={<CardSkeleton />}>
