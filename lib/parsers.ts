@@ -80,22 +80,61 @@ export interface ProjectOverview {
   openProblems: string[];
 }
 
+// Strip markdown formatting from inline text
+function stripMd(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")    // bold
+    .replace(/\*(.+?)\*/g, "$1")        // italic
+    .replace(/`(.+?)`/g, "$1")          // code
+    .replace(/\[(.+?)\]\(.+?\)/g, "$1") // links
+    .trim();
+}
+
 export function parseProjectOverview(md: string, name: string): ProjectOverview {
   const section = (heading: string) => {
-    const m = md.match(new RegExp(`## ${heading}\\s*\\n([^#]+)`));
-    return m ? m[1].trim() : "";
+    const m = md.match(new RegExp(`## ${heading}\\s*\\n([^#]+)`, "i"));
+    return m ? stripMd(m[1].trim()) : "";
   };
-  const openProblems = (section("Open Problems") || "")
+
+  // Goal can also live as **Goal:** inline frontmatter (IsoApp style)
+  let goal = section("Goal");
+  if (!goal) {
+    const inline = md.match(/\*\*Goal:\*\*\s*(.+)/i);
+    if (inline) goal = stripMd(inline[1]);
+  }
+
+  // Status: same — may be inline **Status:**
+  let status = section("Status");
+  if (!status) {
+    const inline = md.match(/\*\*Status:\*\*\s*(.+)/i);
+    if (inline) status = stripMd(inline[1]);
+  }
+
+  // Open problems: handle numbered lists, dashes, and checkbox bullets
+  const openRaw = section("Open Problems") || "";
+  const openProblems = openRaw
     .split("\n")
-    .filter((l) => l.match(/^\d+\.|^-/))
-    .map((l) => l.replace(/^\d+\.\s*\*{0,2}|^-\s*/g, "").split("—")[0].trim())
+    .map((l) => l.trim())
+    .filter((l) => l.match(/^(\d+\.|-|\*)\s/))
+    .map((l) => {
+      // Remove list marker
+      let clean = l.replace(/^(\d+\.|[-*])\s+/, "");
+      // Remove checkbox prefix
+      clean = clean.replace(/^\[([ xX])\]\s*/, "");
+      // Strip markdown
+      clean = stripMd(clean);
+      // Take only the headline before any em-dash explanation
+      const dashSplit = clean.split(/\s+—\s+/);
+      return dashSplit[0].trim();
+    })
+    .filter(Boolean)
     .slice(0, 4);
 
   return {
     name,
-    what: section("What It Is") || section("What"),
-    goal: section("Goal"),
-    status: section("Status"),
+    what: section("What It Is") || section("What it is") || section("What"),
+    goal,
+    status,
     openProblems,
   };
 }
