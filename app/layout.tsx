@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { auth } from "@/auth";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 
@@ -16,41 +17,45 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   if (!session) {
     return (
       <html lang="en" suppressHydrationWarning>
-        <body className="min-h-screen bg-background text-foreground">
+        <body className="bg-background text-foreground">
           {children}
         </body>
       </html>
     );
   }
 
+  const user = {
+    name: session.user?.name ?? "Ismaila",
+    email: session.user?.email ?? "",
+    avatar: session.user?.image ?? "",
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground">
-
-        {/* ── Desktop: shadcn sidebar layout (sidebar is fixed, gap div pushes content) ── */}
-        <SidebarProvider className="hidden md:flex">
-          <AppSidebar />
-          <SidebarInset>
-            {/* Collapse toggle header */}
-            <header className="flex h-12 shrink-0 items-center gap-3 px-4 border-b border-border bg-background">
-              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-              <div className="h-4 w-px bg-border" />
-            </header>
-            {/* Page content */}
-            <div className="flex-1 overflow-auto p-6">
+      <body className="bg-background text-foreground">
+        <TooltipProvider>
+          {/* Desktop: dashboard-01 sidebar layout */}
+          <SidebarProvider
+            className="hidden md:flex"
+            style={{
+              "--sidebar-width": "calc(var(--spacing) * 56)",
+              "--header-height": "calc(var(--spacing) * 12)",
+            } as React.CSSProperties}
+          >
+            <AppSidebar variant="inset" user={user} />
+            <SidebarInset>
               {children}
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
+            </SidebarInset>
+          </SidebarProvider>
 
-        {/* ── Mobile: top bar + scrollable content + bottom tabs ── */}
-        <div className="flex md:hidden flex-col min-h-screen">
-          <MobileNav />
-          <main className="flex-1 overflow-auto px-4 py-4 pb-28">
-            {children}
-          </main>
-        </div>
-
+          {/* Mobile: top bar + bottom tabs */}
+          <div className="flex md:hidden flex-col min-h-screen">
+            <MobileNav />
+            <main className="flex-1 overflow-auto px-4 py-4 pb-28">
+              {children}
+            </main>
+          </div>
+        </TooltipProvider>
       </body>
     </html>
   );
