@@ -32,8 +32,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <AppSidebar />
           <SidebarInset>
             {/* Collapse toggle header */}
-            <header className="flex h-10 shrink-0 items-center px-3 border-b border-border">
-              <SidebarTrigger />
+            <header className="flex h-12 shrink-0 items-center gap-3 px-4 border-b border-border bg-background">
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+              <div className="h-4 w-px bg-border" />
             </header>
             {/* Page content */}
             <div className="flex-1 overflow-auto p-6">

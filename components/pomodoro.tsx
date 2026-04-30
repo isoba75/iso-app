@@ -13,7 +13,7 @@ const DURATIONS: Record<Mode, number> = {
 
 const MODE_LABELS: Record<Mode, string> = {
   "work": "Focus",
-  "break": "Short break",
+  "break": "Break",
   "long-break": "Long break",
 };
 
@@ -56,38 +56,30 @@ export function Pomodoro() {
     return () => clearTimeout(t);
   }, [running, seconds, complete]);
 
-  const reset = () => {
-    setRunning(false);
-    setSeconds(DURATIONS[mode]);
-  };
+  const reset = () => { setRunning(false); setSeconds(DURATIONS[mode]); };
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {MODE_LABELS[mode]}
-        </span>
+        <span className="text-xs font-medium text-muted-foreground">{MODE_LABELS[mode]}</span>
         {sessions > 0 && (
-          <span className="text-xs text-muted-foreground">{sessions} sessions</span>
+          <span className="text-xs text-muted-foreground">{sessions} done</span>
         )}
       </div>
-      <div
-        className="text-3xl font-mono font-bold text-center py-2"
-        style={{ color: running ? "var(--accent-green, #7dd870)" : undefined }}
-      >
+      <div className="text-2xl font-mono font-semibold text-center tracking-tight">
         {formatTime(seconds)}
       </div>
-      <Progress value={progress} className="h-1" />
-      <div className="flex gap-2">
+      <Progress value={progress} className="h-0.5 bg-muted" />
+      <div className="flex gap-2 pt-1">
         <Button
           size="sm"
           variant={running ? "outline" : "default"}
-          className="flex-1 text-xs"
+          className="flex-1 text-sm font-normal"
           onClick={() => setRunning((r) => !r)}
         >
           {running ? "Pause" : "Start"}
         </Button>
-        <Button size="sm" variant="ghost" className="text-xs" onClick={reset}>
+        <Button size="sm" variant="ghost" className="text-sm text-muted-foreground" onClick={reset}>
           Reset
         </Button>
       </div>
