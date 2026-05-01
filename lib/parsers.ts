@@ -39,9 +39,25 @@ export function parseFinanceContext(md: string): FinanceContext {
   const salaryMatch = md.match(/UN salary.*?[+€]([\d,\.]+)\s*EUR/);
   const salary = salaryMatch ? `€${salaryMatch[1]}` : "€8,392";
 
-  // VUAA start
-  const vuaaMatch = md.match(/VUAA[^€\n]*€[\d,]+\/month[^(]*\(([^)]+)\)/);
-  const vuaaStart = vuaaMatch ? vuaaMatch[1] : line(/VUAA starts? ([A-Z][a-z]+ \d{4})/);
+  // VUAA start — try multiple phrasings (canonical, legacy, reverse)
+  let vuaaStart = "—";
+  const candidates: RegExp[] = [
+    // Canonical: "~Jun 2026: VUAA starts at ~€1,027/month"
+    /(~?\s*[A-Z][a-z]+\s+\d{4}):\s*VUAA starts?\s+at/,
+    // Legacy: "VUAA starts Jun 2026" or "VUAA starts? Month YYYY"
+    /VUAA starts?\s+([A-Z][a-z]+\s+\d{4})/,
+    // Schedule line: "Jan 2027: €2,500/month" inside VUAA section
+    /VUAA[\s\S]{0,200}?\b([A-Z][a-z]+\s+\d{4})\b\s*:?\s*€/,
+    // Parenthetical: "VUAA ... €X/month (Jun 2026)"
+    /VUAA[^€\n]*€[\d,]+\/month[^(]*\(([^)]+)\)/,
+  ];
+  for (const re of candidates) {
+    const m = md.match(re);
+    if (m && m[1]) {
+      vuaaStart = m[1].trim().replace(/^~\s*/, "~");
+      break;
+    }
+  }
 
   // Advance status
   const advanceStatus = md.includes("CLEARING WITH ADVANCE") || md.includes("advance")

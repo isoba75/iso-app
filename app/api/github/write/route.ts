@@ -11,7 +11,8 @@ export async function POST(req: NextRequest) {
 
   const date = new Date().toISOString().slice(0, 10);
   const time = new Date().toISOString().slice(11, 16) + " UTC";
-  const path = `Inbox/${date}.md`;
+  // Captures land in Inbox/captures/ per iso-life convention (memory/schema.md, 2026-05-01)
+  const path = `Inbox/captures/${date}.md`;
 
   // Append to existing file or create new
   let existing = "";

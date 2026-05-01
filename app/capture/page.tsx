@@ -1,105 +1,74 @@
-"use client";
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { readFile } from "@/lib/github";
+import { CaptureClient } from "./capture-client";
 
-const TAGS = ["Finance", "DigiBuntu", "PetCalculate", "IsoApp", "Personal", "Idea"] as const;
-type Tag = typeof TAGS[number];
+interface CapturePreviewItem {
+  time: string;
+  tag: string;
+  text: string;
+}
 
-export default function CapturePage() {
-  const [text, setText]     = useState("");
-  const [tag, setTag]       = useState<Tag>("Personal");
-  const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
+// Parse Inbox/captures/YYYY-MM-DD.md format:
+// ## HH:MM UTC [Tag]
+// content...
+function parseTodayCaptures(md: string): CapturePreviewItem[] {
+  const items: CapturePreviewItem[] = [];
+  const lines = md.split("\n");
+  let current: { time: string; tag: string; lines: string[] } | null = null;
 
-  const save = async () => {
-    if (!text.trim()) return;
-    setStatus("saving");
-    try {
-      const res = await fetch("/api/github/write", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: text.trim(), tag }),
-      });
-      if (!res.ok) throw new Error();
-      setStatus("done");
-      setText("");
-      setTimeout(() => setStatus("idle"), 2500);
-    } catch {
-      setStatus("error");
-      setTimeout(() => setStatus("idle"), 3000);
+  for (const line of lines) {
+    const headerMatch = line.match(/^##\s+(\d{2}:\d{2})\s+UTC\s*\[([^\]]+)\]\s*$/);
+    if (headerMatch) {
+      if (current) {
+        items.push({
+          time: current.time,
+          tag: current.tag,
+          text: current.lines.join("\n").trim(),
+        });
+      }
+      current = { time: headerMatch[1], tag: headerMatch[2], lines: [] };
+      continue;
     }
-  };
+    if (current && !line.startsWith("# ") && !line.startsWith("[Triaged:")) {
+      current.lines.push(line);
+    }
+  }
+  if (current) {
+    items.push({
+      time: current.time,
+      tag: current.tag,
+      text: current.lines.join("\n").trim(),
+    });
+  }
+  // Reverse: newest first.
+  return items.reverse().filter((i) => i.text.length > 0);
+}
 
-  const buttonLabel =
-    status === "saving" ? "Saving..." :
-    status === "done"   ? "✓ Saved to iso-life" :
-    status === "error"  ? "Error — retry" :
-    "Save capture";
+export default async function CapturePage() {
+  const date = new Date().toISOString().slice(0, 10);
+  // Try the new path first (Inbox/captures/), fall back to old root path.
+  // Old path support kept temporarily for backwards compat with captures
+  // written before the path fix landed.
+  let raw = "";
+  try {
+    raw = await readFile(`Inbox/captures/${date}.md`);
+  } catch {
+    try {
+      raw = await readFile(`Inbox/${date}.md`);
+    } catch {
+      // No file today — empty preview.
+    }
+  }
+  const todayCaptures = parseTodayCaptures(raw).slice(0, 10);
 
   return (
-    <div className="flex flex-col">
-      <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6 max-w-2xl">
-        <div>
-          <h1 className="text-base font-semibold">Capture</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Brain dump → commits to iso-life inbox</p>
-        </div>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">New capture</CardTitle>
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {TAGS.map((t) => (
-                <button key={t} onClick={() => setTag(t)}>
-                  <Badge
-                    variant={tag === t ? "default" : "outline"}
-                    className="cursor-pointer text-xs"
-                  >
-                    {t}
-                  </Badge>
-                </button>
-              ))}
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
-            <Textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="What's on your mind? Ideas, tasks, observations..."
-              className="resize-none text-sm"
-              rows={6}
-              onKeyDown={(e) => e.key === "Enter" && e.metaKey && save()}
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">⌘ + Enter to save</span>
-              <Button
-                onClick={save}
-                disabled={!text.trim() || status === "saving"}
-                size="sm"
-                className={status === "done" ? "bg-green-600 hover:bg-green-600" : ""}
-              >
-                {buttonLabel}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>How it works</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-sm text-muted-foreground">
-              Each capture is appended to{" "}
-              <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">
-                iso-life/Inbox/YYYY-MM-DD.md
-              </code>{" "}
-              with a timestamp and tag. Claude reads the inbox at the start of each Cowork session.
-            </p>
-          </CardContent>
-        </Card>
+    <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6 max-w-2xl">
+      <div>
+        <h1 className="text-2xl font-semibold">Capture</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Brain dump → <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">iso-life/Inbox/captures/</code>
+        </p>
       </div>
+      <CaptureClient todayCaptures={todayCaptures} />
     </div>
   );
 }
