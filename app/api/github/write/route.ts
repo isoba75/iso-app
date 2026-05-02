@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { readFile, writeFile } from "@/lib/github";
+import { fireRoutine } from "@/lib/routines";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -24,5 +25,14 @@ export async function POST(req: NextRequest) {
     : `# Inbox — ${date}\n${entry}`;
 
   await writeFile(path, newContent, `capture: ${tag} — ${date}`);
+
+  // Fire the Capture Triage routine (fire-and-forget — never blocks).
+  // Routine reads the just-committed file, classifies, proposes/files.
+  // If env vars missing, returns silently — capture still saves successfully.
+  const triageUrl = process.env.TRIAGE_ROUTINE_URL;
+  void fireRoutine(triageUrl, `[${tag}] ${text.trim()}`).catch(() => {
+    // already logged inside fireRoutine; never propagate
+  });
+
   return NextResponse.json({ ok: true, path });
 }
