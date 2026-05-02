@@ -20,6 +20,7 @@ import {
   FolderIcon,
   InboxIcon,
   ListChecksIcon,
+  TimerIcon,
   Settings2Icon,
   CircleHelpIcon,
 } from "lucide-react"
@@ -30,6 +31,7 @@ const navMain = [
   { title: "Feed",     url: "/feed",     icon: <ListChecksIcon /> },
   { title: "Finance",  url: "/finance",  icon: <WalletIcon /> },
   { title: "Projects", url: "/projects", icon: <FolderIcon /> },
+  { title: "Routines", url: "/routines", icon: <TimerIcon /> },
 ]
 
 const navSecondary = [

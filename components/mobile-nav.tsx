@@ -13,6 +13,7 @@ const primaryTabs = [
 
 const moreLinks = [
   { href: "/projects", label: "Projects", icon: "▤" },
+  { href: "/routines", label: "Routines", icon: "◷" },
 ];
 
 export function MobileNav() {

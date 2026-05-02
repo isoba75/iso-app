@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,14 +25,7 @@ interface SpeechRecognitionInstance {
   stop: () => void;
 }
 
-interface CapturePreviewItem {
-  time: string;
-  tag: string;
-  text: string;
-}
-
-export function CaptureClient({ todayCaptures }: { todayCaptures: CapturePreviewItem[] }) {
-  const router = useRouter();
+export function CaptureClient() {
   const [text, setText] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [listening, setListening] = useState(false);
@@ -96,10 +88,7 @@ export function CaptureClient({ todayCaptures }: { todayCaptures: CapturePreview
       if (!res.ok) throw new Error();
       setStatus("done");
       setText("");
-      setTimeout(() => {
-        setStatus("idle");
-        router.refresh();
-      }, 1200);
+      setTimeout(() => setStatus("idle"), 1500);
     } catch {
       setStatus("error");
       setTimeout(() => setStatus("idle"), 3000);
@@ -113,78 +102,49 @@ export function CaptureClient({ todayCaptures }: { todayCaptures: CapturePreview
     "Save";
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardContent className="space-y-3 pt-5">
-          <div className="relative">
-            <Textarea
-              ref={textareaRef}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="What's on your mind?"
-              className="resize-none text-base pr-12 min-h-[160px]"
-              rows={7}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && e.metaKey) save();
-              }}
-            />
-            {voiceSupported && (
-              <button
-                type="button"
-                onClick={listening ? stopVoice : startVoice}
-                className={`absolute bottom-3 right-3 p-2.5 rounded-full transition-all ${
-                  listening
-                    ? "bg-red-500 text-white animate-pulse"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-                aria-label={listening ? "Stop voice input" : "Start voice input"}
-              >
-                {listening ? <MicOff className="size-5" /> : <Mic className="size-5" />}
-              </button>
-            )}
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">
-              {voiceSupported ? "Tap mic for voice · ⌘+Enter to save" : "⌘+Enter to save"}
-            </span>
-            <Button
-              onClick={save}
-              disabled={!text.trim() || status === "saving"}
-              size="sm"
-              className={status === "done" ? "bg-green-600 hover:bg-green-600" : ""}
+    <Card>
+      <CardContent className="space-y-3 pt-5">
+        <div className="relative">
+          <Textarea
+            ref={textareaRef}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="What's on your mind?"
+            className="resize-none text-base pr-12 min-h-[200px]"
+            rows={9}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && e.metaKey) save();
+            }}
+          />
+          {voiceSupported && (
+            <button
+              type="button"
+              onClick={listening ? stopVoice : startVoice}
+              className={`absolute bottom-3 right-3 p-2.5 rounded-full transition-all ${
+                listening
+                  ? "bg-red-500 text-white animate-pulse"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+              aria-label={listening ? "Stop voice input" : "Start voice input"}
             >
-              {buttonLabel}
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground border-t border-border pt-3">
-            The triage agent classifies and routes your capture automatically. Just write or speak — no tags needed.
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Today's captures preview — keep, helpful for quick "did it save?" feedback */}
-      {todayCaptures.length > 0 && (
-        <Card>
-          <CardContent className="pt-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold">
-                Today · {todayCaptures.length} capture{todayCaptures.length > 1 ? "s" : ""}
-              </p>
-              <span className="text-xs text-muted-foreground">most recent first</span>
-            </div>
-            {todayCaptures.map((c, i) => (
-              <div key={i} className="flex gap-3 py-2 border-b border-border/50 last:border-0">
-                <span className="text-xs text-muted-foreground tabular-nums shrink-0 w-12 pt-0.5">
-                  {c.time}
-                </span>
-                <p className="text-sm leading-snug whitespace-pre-wrap break-words flex-1 min-w-0">
-                  {c.text}
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-    </div>
+              {listening ? <MicOff className="size-5" /> : <Mic className="size-5" />}
+            </button>
+          )}
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs text-muted-foreground">
+            {voiceSupported ? "Tap mic for voice · ⌘+Enter to save" : "⌘+Enter to save"}
+          </span>
+          <Button
+            onClick={save}
+            disabled={!text.trim() || status === "saving"}
+            size="sm"
+            className={status === "done" ? "bg-green-600 hover:bg-green-600" : ""}
+          >
+            {buttonLabel}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
