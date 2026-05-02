@@ -19,21 +19,17 @@ import {
   WalletIcon,
   FolderIcon,
   InboxIcon,
-  TargetIcon,
-  ActivityIcon,
-  TimerIcon,
+  ListChecksIcon,
   Settings2Icon,
   CircleHelpIcon,
 } from "lucide-react"
 
 const navMain = [
   { title: "Today",    url: "/today",    icon: <CalendarIcon /> },
+  { title: "Capture",  url: "/capture",  icon: <InboxIcon /> },
+  { title: "Feed",     url: "/feed",     icon: <ListChecksIcon /> },
   { title: "Finance",  url: "/finance",  icon: <WalletIcon /> },
   { title: "Projects", url: "/projects", icon: <FolderIcon /> },
-  { title: "Capture",  url: "/capture",  icon: <InboxIcon /> },
-  { title: "Missions", url: "/missions", icon: <TargetIcon /> },
-  { title: "Habits",   url: "/habits",   icon: <ActivityIcon /> },
-  { title: "Routines", url: "/routines", icon: <TimerIcon /> },
 ]
 
 const navSecondary = [

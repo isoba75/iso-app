@@ -1,16 +1,15 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { googleConfigured } from "@/lib/google";
 import { DayColumn } from "@/components/today/day-column";
-import { FeedColumn } from "@/components/today/feed-column";
-import { ActionsColumn } from "@/components/today/actions-column";
-import { IsoStatCards } from "@/components/today/stat-cards";
 import { MorningBrief } from "@/components/today/morning-brief";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 function SetupPrompt() {
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent className="pt-5 pb-5">
         <p className="text-sm font-semibold mb-2">Google not connected</p>
         <p className="text-sm text-muted-foreground mb-3">
           Run the one-time auth script in Terminal:
@@ -26,21 +25,15 @@ function SetupPrompt() {
   );
 }
 
-function ColumnSkeleton() {
-  return (
-    <div className="flex flex-col gap-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
-      ))}
-    </div>
-  );
+function BriefSkeleton() {
+  return <div className="h-48 rounded-xl bg-muted animate-pulse" />;
 }
 
-function CardSkeleton() {
+function ColumnSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
+    <div className="flex flex-col gap-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />
       ))}
     </div>
   );
@@ -50,49 +43,31 @@ export default async function TodayPage() {
   const configured = googleConfigured();
 
   return (
-    <div className="flex flex-col">
-      <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        {/* Morning Brief — top of page, the daily entry point */}
-        <div className="px-4 lg:px-6">
-          <Suspense fallback={
-            <div className="h-32 rounded-xl bg-muted animate-pulse" />
-          }>
-            <MorningBrief />
-          </Suspense>
-        </div>
+    <div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6 max-w-3xl">
+      {/* Morning Brief — the daily entry point */}
+      <Suspense fallback={<BriefSkeleton />}>
+        <MorningBrief />
+      </Suspense>
 
-        {/* Stat cards row */}
-        <Suspense fallback={<CardSkeleton />}>
-          <IsoStatCards />
-        </Suspense>
+      {/* Schedule + tasks (real Google data) */}
+      <Suspense fallback={<ColumnSkeleton />}>
+        {configured ? <DayColumn /> : <SetupPrompt />}
+      </Suspense>
 
-        {/* Desktop: 3-column grid */}
-        <div className="hidden md:grid grid-cols-[272px_1fr_220px] gap-6 px-4 lg:px-6">
-          <div className="flex flex-col gap-4">
-            <Suspense fallback={<ColumnSkeleton />}>
-              {configured ? <DayColumn /> : <SetupPrompt />}
-            </Suspense>
-          </div>
-          <div className="flex flex-col gap-4">
-            <Suspense fallback={<ColumnSkeleton />}>
-              <FeedColumn />
-            </Suspense>
-          </div>
-          <div className="flex flex-col gap-4">
-            <ActionsColumn />
-          </div>
-        </div>
-
-        {/* Mobile: single column scroll */}
-        <div className="flex md:hidden flex-col gap-4">
-          <Suspense fallback={<ColumnSkeleton />}>
-            {configured ? <DayColumn /> : <SetupPrompt />}
-          </Suspense>
-          <Suspense fallback={<ColumnSkeleton />}>
-            <FeedColumn />
-          </Suspense>
-          <ActionsColumn />
-        </div>
+      {/* Quick actions */}
+      <div className="grid grid-cols-2 gap-3">
+        <Link href="/capture">
+          <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-1">
+            <span className="text-base">✦</span>
+            <span className="text-sm font-medium">Capture</span>
+          </Button>
+        </Link>
+        <Link href="/feed">
+          <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-1">
+            <span className="text-base">📋</span>
+            <span className="text-sm font-medium">Feed</span>
+          </Button>
+        </Link>
       </div>
     </div>
   );

@@ -6,15 +6,13 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const primaryTabs = [
   { href: "/today",    label: "Today",    icon: "⌂" },
-  { href: "/finance",  label: "Finance",  icon: "◈" },
   { href: "/capture",  label: "Capture",  icon: "✦" },
-  { href: "/missions", label: "Missions", icon: "⟶" },
+  { href: "/feed",     label: "Feed",     icon: "≡" },
+  { href: "/finance",  label: "Finance",  icon: "◈" },
 ];
 
 const moreLinks = [
-  { href: "/habits",   label: "Habits",   icon: "◎" },
   { href: "/projects", label: "Projects", icon: "▤" },
-  { href: "/routines", label: "Routines", icon: "◷" },
 ];
 
 export function MobileNav() {
