@@ -26,13 +26,20 @@ export async function POST(req: NextRequest) {
 
   await writeFile(path, newContent, `capture: ${tag} — ${date}`);
 
-  // Fire the Capture Triage routine (fire-and-forget — never blocks).
-  // Routine reads the just-committed file, classifies, proposes/files.
-  // If env vars missing, returns silently — capture still saves successfully.
+  // Fire the Capture Triage routine.
+  // NOTE: Vercel serverless functions kill async work after response returns,
+  // so we must await the fire-call. We give it a short timeout (3s) so a
+  // slow Anthropic API never blocks the user's capture beyond that.
+  // The /fire endpoint itself just queues the run — should respond fast.
   const triageUrl = process.env.TRIAGE_ROUTINE_URL;
-  void fireRoutine(triageUrl, `[${tag}] ${text.trim()}`).catch(() => {
-    // already logged inside fireRoutine; never propagate
-  });
+  console.log(`[capture] triageUrl present: ${!!triageUrl}, token present: ${!!process.env.ANTHROPIC_ROUTINE_TOKEN}`);
+  const fireResult = await Promise.race([
+    fireRoutine(triageUrl, `[${tag}] ${text.trim()}`),
+    new Promise<{ ok: false; reason: string }>((resolve) =>
+      setTimeout(() => resolve({ ok: false, reason: "timeout_3s" }), 3000)
+    ),
+  ]).catch((e) => ({ ok: false as const, reason: `exception: ${String(e)}` }));
+  console.log(`[capture] fire result:`, fireResult);
 
-  return NextResponse.json({ ok: true, path });
+  return NextResponse.json({ ok: true, path, triage: fireResult });
 }
